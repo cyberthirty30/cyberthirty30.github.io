@@ -1,16 +1,24 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyber30:: Portfolio</title>
+    <title>Cyber30 :: Portfolio</title>
+    
+    <!-- Google Font: VT323 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    
+    <!--  Tailwind CSS, React & Babel -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind with custom styles -->
     <script>
         tailwind.config = {
             theme: {
@@ -28,6 +36,7 @@
                         blink: 'blink 1.2s step-end infinite',
                         scan: 'scan 7s linear infinite',
                         fadeIn: 'fadeIn 1s ease-in-out',
+                        textGlow: 'textGlow 2s ease-in-out infinite alternate',
                     },
                     keyframes: {
                         blink: {
@@ -43,6 +52,10 @@
                         fadeIn: {
                             '0%': { opacity: 0, transform: 'translateY(10px)' },
                             '100%': { opacity: 1, transform: 'translateY(0)' },
+                        },
+                        textGlow: {
+                            'from': { filter: 'drop-shadow(0 0 3px #0ac647)' },
+                            'to': { filter: 'drop-shadow(0 0 10px #0ac647)' }
                         }
                     }
                 }
@@ -55,7 +68,6 @@
         body {
             font-family: 'VT323', monospace;
             background-color: #0a0a0a;
-            /* Simple overlay for CRT effect */
             background-image: linear-gradient(rgba(0,0,0,0.3) 1px, transparent 1px);
             background-size: 1px 2px;
         }
@@ -63,7 +75,6 @@
 </head>
 <body>
 
-    <div id="root"></div>
     <script type="text/babel">
         const aboutItems = [
             { icon: '😎', text: 'Security Enthusiast' },
@@ -124,6 +135,141 @@
                 {children}
             </div>
         );
+        
+        // --- INTERACTIVE TERMINAL COMPONENT ---
+        const FakeTerminal = () => {
+            const { useState, useEffect, useRef } = React;
+            const [history, setHistory] = useState([
+                { type: 'output', text: 'Welcome to Kanzen Shigoto. Type "help" to see available commands.' }
+            ]);
+            const [inputValue, setInputValue] = useState('');
+            const terminalEndRef = useRef(null);
+            const inputRef = useRef(null);
+
+            // ParrotSec style prompt
+            const prompt = '<span class="text-hacker-green">root@parrot</span><span class="text-white">:</span><span class="text-blue-400">~</span><span class="text-white">$</span>';
+
+            const commandDescriptions = {
+                'whoami': 'Displays the current authenticated user identity.',
+                'ls': 'Lists files and directories in the current path.',
+                'hostname': 'Shows the network name of the system.',
+                'exploit': 'Executes a successful system privilege escalation.',
+                'cat': 'Outputs the content of specified files (use "cat [filename]").',
+                'help': 'Shows this list of available commands and descriptions.',
+                'clear': 'Clears the terminal screen history.'
+            };
+
+            const commandList = {
+                'whoami': 'LUCKY NGABUH',
+                'ls': '<span class="text-blue-500">king.txt</span> <span class="text-blue-500">root.txt</span> <span class="text-blue-500">flag.txt</span> <span class="text-blue-500">game.txt</span> <span class="text-blue-500">vlc</span> <span class="text-red-600">trap.txt</span>',
+                'hostname': 'cyber30',
+                'exploit': '<span class="text-hacker-red text-xl animate-pulse">Youhavepwned</span>',
+                'cat king.txt': 'cyber30',
+                'cat root.txt': 'cyber30',
+                'cat flag.txt': 'cyber30',
+                'cat game.txt': 'cyber30',
+                'cat vlc': 'cyber30',
+                'cat trap.txt': '<span class="text-hacker-red text-2xl animate-pulse">YBK SNIPER</span>',
+                'cat': 'Usage: cat [filename]',
+            };
+
+            const processCommand = (cmd) => {
+                if (cmd === 'clear') {
+                    setHistory([]);
+                    return;
+                }
+                
+                if (cmd === 'help') {
+                    const helpOutput = Object.entries(commandDescriptions).map(([command, desc], index) => {
+                        const padding = ' '.repeat(10 - command.length > 0 ? 10 - command.length : 1);
+                        return `<span class="text-hacker-green">${command}${padding}</span> <span class="text-hacker-gray">-- ${desc}</span>`;
+                    }).join('<br/>');
+                    setHistory(prev => [...prev, { type: 'output', text: helpOutput }]);
+                    return;
+                }
+
+                // Handle 'cat' without a filename
+                if (cmd.startsWith('cat ') && cmd.split(' ').length === 2 && !commandList[cmd]) {
+                    setHistory(prev => [...prev, { type: 'output', text: `cat: ${cmd.split(' ')[1]}: No such file or directory` }]);
+                    return;
+                }
+
+                const output = commandList[cmd];
+                if (output) {
+                    setHistory(prev => [...prev, { type: 'output', text: output }]);
+                } else {
+                    setHistory(prev => [...prev, { type: 'output', text: `command not found: ${cmd}. Type 'help'.` }]);
+                }
+            };
+
+            const handleKeyDown = (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const cmd = inputValue.trim();
+                    if (cmd) {
+                        setHistory(prev => [...prev, { type: 'prompt', text: `${prompt} ${cmd}` }]);
+                        processCommand(cmd);
+                    } else {
+                        // Add empty prompt to history
+                         setHistory(prev => [...prev, { type: 'prompt', text: `${prompt}` }]);
+                    }
+                    // Clear input
+                    setInputValue('');
+                } else if (e.key === 'Tab') {
+                    e.preventDefault();
+                }
+            };
+
+            // Auto-scroll to bottom
+            useEffect(() => {
+                if (terminalEndRef.current) {
+                    terminalEndRef.current.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, [history]);
+
+            // Auto-focus the input
+            const focusInput = () => {
+                if (inputRef.current) {
+                    inputRef.current.focus();
+                }
+            };
+
+            return (
+                <div 
+                    className="bg-black text-white p-4 rounded-lg font-mono text-base h-96 overflow-y-auto border border-hacker-gray/50 cursor-text"
+                    onClick={focusInput} // Focus input when clicking anywhere in the terminal
+                >
+                    {history.map((line, index) => {
+                        if (line.type === 'prompt') {
+                            return <div key={index} dangerouslySetInnerHTML={{ __html: line.text }} />;
+                        }
+                        if (line.type === 'output') {
+                            // Use a monospace font for aligned output (like help)
+                            return <div key={index} className="pl-1 whitespace-pre-wrap" style={{ fontFamily: 'VT323, monospace' }} dangerouslySetInnerHTML={{ __html: line.text }} />;
+                        }
+                        return null;
+                    })}
+                    
+                    {/* The Live Input Line */}
+                    <div className="flex">
+                        <span dangerouslySetInnerHTML={{ __html: prompt }} />
+                        <input
+                            ref={inputRef}
+                            type="text"
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            className="bg-transparent text-white flex-1 border-none outline-none pl-2"
+                            autoFocus
+                        />
+                    </div>
+                    
+                    {/* This empty div is to scroll to the bottom */}
+                    <div ref={terminalEndRef} />
+                </div>
+            );
+        };
+
 
         // --- Main Component ---
         const HackerPortfolio = () => {
@@ -142,9 +288,11 @@
                             />
                         </a>
                         
-                        <h1 className="text-5xl md:text-6xl text-hacker-red uppercase mb-4 tracking-widest drop-shadow-[0_0_5px_rgba(255,0,79,0.7)]">
-                            CYBERTHIRTY
+                        {/* <!-- SLOWER typing animation for CYBERTHIRTY --> */}
+                        <h1 className="text-5xl md:text-6xl text-hacker-red uppercase mb-4 tracking-widest animate-textGlow  drop-shadow-[0_0_5px_rgba(255,0,79,0.7)]">
+                            CYBER30 | YBK SNIPER
                         </h1>
+                        
                         
                         <img 
                             src="https://readme-typing-svg.demolab.com?font=VT323&size=24&pause=1000&center=true&vCenter=true&width=550&lines=System+Online;%3E+Audio+Engineer;%3E+Cyber+Security+Enthusiast;%3E+Software+Developer" 
@@ -153,7 +301,7 @@
                         />
 
                         <p className="text-hacker-gray text-lg mt-4">
-                            // Identity: lucky ngabuh (alias ybk sniper)
+                            // Identity: <span className="text-hacker-green animate-pulse">LUCKY NGABUH</span>
                         </p>
                         <p className="text-xl mt-2">
                             Passionate about <strong className="text-hacker-red">business and technology</strong>.
@@ -174,7 +322,7 @@
                         </ul>
                     </SectionBlock>
                     
-                    {/* --- NEW RESUME / SKILLS SECTION --- */}
+                    {/* --- SKILLS SECTION --- */}
                     <SectionBlock>
                         <ConsolePrompt title="Resume.sh :: execute --skills" />
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-lg">
@@ -207,7 +355,7 @@
 
                     {/* --- PRODUCER PORTFOLIO --- */}
                     <SectionBlock>
-                        <ConsolePrompt title="ProducerPortfolio :: load(audio.dll)" />
+                        <ConsolePrompt title="Producer :: load(audio.dll)" />
                         <div className="p-4">
                             <h3 className="text-2xl text-hacker-red mb-4">
                                 <span className="animate-blink">_</span> Console Mixer Status: 
@@ -216,6 +364,23 @@
                             <div className="flex flex-wrap gap-2">
                                 <img src="https://img.shields.io/badge/FL_Studio-FF7C00?style=for-the-badge&logo=flstudio&logoColor=white" alt="FL Studio" className="h-7" />
                                 <img src="https://img.shields.io/badge/Pro_Tools-6B2D84?style=for-the-badge&logo=avid&logoColor=white" alt="Pro Tools" className="h-7" />
+                                <img src="https://img.shields.io/badge/Blender-F5792A?style=for-the-badge&logo=blender&logoColor=white" alt="Blender" className="h-7" />
+            
+                            </div>
+                        </div>
+                    </SectionBlock>
+
+                    
+
+                    {/* --- 3D PORTFOLIO --- */}
+                    <SectionBlock>
+                        <ConsolePrompt title="3D-DESIGNER :: load(blender.exe)" />
+                        <div className="p-4">
+                            <h3 className="text-2xl text-hacker-red mb-4">
+                                <span className="animate-blink">_</span> Modelling Status: 
+                                <span className="text-hacker-green ml-2">MASTERING TRACE</span>
+                            </h3>
+                            <div className="flex flex-wrap gap-2">
                                 <img src="https://img.shields.io/badge/Blender-F5792A?style=for-the-badge&logo=blender&logoColor=white" alt="Blender" className="h-7" />
             
                             </div>
@@ -234,37 +399,26 @@
                             </a>
                         </div>
                         <div className="flex flex-wrap justify-center gap-4 mt-6">
-                            {socialLinks.map((link) => (
+                            {socialLinks.map((link, index) => (
                                 <a 
-                                    key={link.name}
+                                    key={index}
                                     href={link.url} 
                                     target="_blank" 
                                     rel="noopener noreferrer" 
-                                    className="text-black bg-hacker-green p-2 px-4 text-xl font-bold shadow-lg border-2 border-hacker-green
-                                               hover:bg-hacker-red hover:text-white hover:border-hacker-red transition-all duration-300 
+                                    className="text-white bg-hacker-red p-2 text-lg font-bold rounded shadow-lg 
+                                               hover:bg-hacker-green hover:text-black transition-colors duration-300 
                                                transform hover:scale-105"
                                 >
-                                    {link.name}
+                                    {link.icon} <span className="hidden sm:inline">{link.name}</span>
                                 </a>
                             ))}
                         </div>
                     </SectionBlock>
 
-                    {/* --- GITHUB STATS --- */}
+                    {/* --- ROOT TERMINAL --- */}
                     <SectionBlock>
-                        <ConsolePrompt title="GitHub.stats :: monitor --activity" />
-                        <div className="flex flex-wrap justify-center gap-4">
-                            <img 
-                                src="https://github-readme-stats.vercel.app/api?username=cyberthirty30&show_icons=true&count_private=true&theme=transparent&title_color=999999&text_color=999999&border_color=0ac647#gh-dark-mode-only" 
-                                alt="GitHub Stats" 
-                                className="w-full md:w-[48%] border border-hacker-green/50 p-2 min-w-[300px]"
-                            />
-                            <img 
-                                src="https://github-readme-stats.vercel.app/api/top-langs/?username=cyberthirty30&langs_count=10&layout=compact&hide=HTML,CSS,SCSS&theme=transparent&title_color=999999&text_color=999999&border_color=0ac647#gh-dark-mode-only" 
-                                alt="Top Languages" 
-                                className="w-full md:w-[48%] border border-hacker-green/50 p-2 min-w-[300px]"
-                            />
-                        </div>
+                        <ConsolePrompt title="zsh :: /root/home/" />
+                        <FakeTerminal />
                     </SectionBlock>
 
                     <footer className="text-center mt-10 text-hacker-gray text-sm">

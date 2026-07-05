@@ -148,6 +148,7 @@
                         setInputValue(''); 
                         return; 
                     }
+                    
                     if (cmd === 'help') response = Object.entries(commands).map(([k,v]) => `${k.padEnd(10)} - ${v}`).join('\n');
                     else if (cmd === 'whoami') response = "LUCKY NGABU :: SECURITY ARCHITECT & PRODUCER";
                     else if (cmd === 'status') response = "CPU: 12% | RAM: 4.2GB | UPTIME: 320 DAYS";
@@ -159,7 +160,11 @@
                 }
             };
 
-            useEffect(() => terminalEndRef.current?.scrollIntoView({ behavior: 'smooth' }), [history]);
+            useEffect(() => {
+                if (terminalEndRef.current) {
+                    terminalEndRef.current.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, [history]);
 
             return (
                 <div className="bg-[#020408] rounded-b-lg p-4 font-hacker text-lg border-t border-white/5 shadow-2xl h-64 overflow-y-auto">
@@ -212,7 +217,7 @@
                             </div>
 
                             <p className="text-cyber-dim max-w-md leading-relaxed mb-8">
-                                I am having <span className="text-cyber-text">funny in secure systems</span> and <span className="text-cyber-text">creative engineering</span>. Based in the game.
+                                I am having <span className="text-cyber-text">fun in secure systems</span> and <span className="text-cyber-text">creative engineering</span>. Based in the game.
                             </p>
 
                             <div className="flex flex-wrap items-center justify-center gap-4">
@@ -261,7 +266,7 @@
                                 </GlassCard>
 
                                 <GlassCard className="!p-0 overflow-hidden">
-                                    <div className="p-6">
+                                    <div className="p-6 pb-0">
                                         <ConsolePrompt title="terminal.exe" colorClass="text-cyber-ruby" />
                                     </div>
                                     <FakeTerminal />

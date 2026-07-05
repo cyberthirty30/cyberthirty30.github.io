@@ -230,18 +230,6 @@
                                 </GlassCard>
 
                                 <GlassCard>
-                                    <ConsolePrompt title="technical_stack.json" />
-                                    <div className="grid grid-cols-2 gap-8">
-                                        <div>
-                                            <h4 className="text-xs uppercase tracking-tighter text-cyber-ruby mb-3">Security</h4>
-                                            <ul className="space-y-2 text-cyber-dim font-hacker text-lg">
-                                                {resumeData.security.slice(0,4).map(s => <li key={s}>• {s}</li>)}
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </GlassCard>
-
-                                <GlassCard>
                                     <ConsolePrompt title="repositories.git" colorClass="text-cyber-accent" />
                                     <div className="space-y-4">
                                         <a href="https://github.com/cyberthirty30/TryHackMe-Room-Tools" target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-black/20 border border-white/5 hover:border-cyber-accent/50 transition-all group">
@@ -272,6 +260,18 @@
 
                             {/* Right Column */}
                             <div className="md:col-span-5 space-y-6">
+                                <GlassCard>
+                                    <ConsolePrompt title="technical_stack.json" />
+                                    <div className="grid grid-cols-2 gap-8">
+                                        <div>
+                                            <h4 className="text-xs uppercase tracking-tighter text-cyber-ruby mb-3">Security</h4>
+                                            <ul className="space-y-2 text-cyber-dim font-hacker text-lg">
+                                                {resumeData.security.slice(0,4).map(s => <li key={s}>• {s}</li>)}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </GlassCard>
+                                
                                 <GlassCard>
                                     <ConsolePrompt title="achievements.log" colorClass="text-yellow-500" />
                                     <div className="space-y-4">
